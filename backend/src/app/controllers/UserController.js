@@ -1,7 +1,25 @@
 import * as Yup from 'yup';
 import User from '../models/Users';
+import File from '../models/File';
+import Sector from '../models/Sector';
 
 class UserController {
+  async index(req, res) {
+    const users = await User.findAll({
+      attributes: ['id', 'name', 'login', 'avatar_id', 'administrator'],
+      include: [
+        { model: File, as: 'perfil', attributes: ['name', 'path', 'url'] },
+        {
+          association: 'sectors',
+          attributes: ['id', 'name'],
+          through: { as: 'main', attributes: ['main'] },
+        },
+      ],
+    });
+
+    return res.json(users);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
@@ -12,6 +30,7 @@ class UserController {
       password: Yup.string()
         .required()
         .min(6),
+      sector: Yup.number().required(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -34,7 +53,16 @@ class UserController {
       return res.status(400).json({ error: 'Login já exite' });
     }
 
-    const { id, name, email, login } = await User.create(req.body);
+    const sector = await Sector.findByPk(req.body.sector);
+
+    if (!sector) {
+      return res.status(404).json({ error: 'Setor não encontrado' });
+    }
+
+    const user = await User.create(req.body);
+
+    await user.addSector(sector.id, { through: { main: '1' } });
+    const { id, name, email, login } = user;
 
     return res.json({ id, name, email, login });
   }
@@ -82,6 +110,18 @@ class UserController {
       return res.json({ id, name, email, login });
     } catch (err) {
       return res.status(500).json({ error: err });
+    }
+  }
+
+  async delete(req, res) {
+    try {
+      const user = await User.findByPk(req.params.id);
+      user.removeSector();
+      user.destroy();
+
+      return res.json('Usuário Deletelado');
+    } catch (err) {
+      return res.status(500).json({ error: `Falha: ${err}` });
     }
   }
 }
