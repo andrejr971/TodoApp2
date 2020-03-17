@@ -12,6 +12,9 @@ import AdministratorController from './app/controllers/AdministratorControllers'
 import SessionController from './app/controllers/SessionController';
 import FileController from './app/controllers/FileController';
 import SectorController from './app/controllers/SectorController';
+import AssignController from './app/controllers/AssignController';
+import TodoController from './app/controllers/TodoController';
+import TodosViewsController from './app/controllers/TodosViewsController';
 
 /**
  *
@@ -45,5 +48,23 @@ routes.get('/administrators', AdministratorController.index);
  */
 routes.get('/sectors', SectorController.index);
 routes.post('/sectors', SectorController.store);
+routes.put('/sectors/:id', SectorController.update);
+routes.delete('/sectors/:id', SectorController.delete);
+
+/** routes to assign sector to user */
+routes.post('/assign/:id', AssignController.store);
+routes.delete('/assign/:id', AssignController.delete);
+
+/**
+ * routes todos
+ */
+routes.get('/my_todos', TodoController.show);
+routes.post('/todos', TodoController.store);
+routes.put('/todos/:id', TodoController.update);
+routes.delete('/todos/:id', TodoController.delete);
+
+/** routes list todos */
+routes.get('/todos', TodosViewsController.index);
+routes.get('/todos/:id', TodosViewsController.show);
 
 export default routes;

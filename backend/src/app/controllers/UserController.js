@@ -9,10 +9,11 @@ class UserController {
       attributes: ['id', 'name', 'login', 'avatar_id', 'administrator'],
       include: [
         { model: File, as: 'perfil', attributes: ['name', 'path', 'url'] },
+        { model: Sector, as: 'main', attributes: ['id', 'name'] },
         {
           association: 'sectors',
           attributes: ['id', 'name'],
-          through: { as: 'main', attributes: ['main'] },
+          through: { as: 'secondary', attributes: ['user_id', 'sector_id'] },
         },
       ],
     });
@@ -30,7 +31,7 @@ class UserController {
       password: Yup.string()
         .required()
         .min(6),
-      sector: Yup.number().required(),
+      sector: Yup.number(),
     });
 
     if (!(await schema.isValid(req.body))) {
@@ -53,15 +54,8 @@ class UserController {
       return res.status(400).json({ error: 'Login já exite' });
     }
 
-    const sector = await Sector.findByPk(req.body.sector);
-
-    if (!sector) {
-      return res.status(404).json({ error: 'Setor não encontrado' });
-    }
-
     const user = await User.create(req.body);
 
-    await user.addSector(sector.id, { through: { main: '1' } });
     const { id, name, email, login } = user;
 
     return res.json({ id, name, email, login });

@@ -16,6 +16,7 @@ class Sector extends Model {
   }
 
   static associate(models) {
+    this.hasMany(models.Todos, { foreignKey: 'sector_id', as: 'todos' });
     this.belongsToMany(models.User, {
       foreignKey: 'sector_id',
       through: 'user_sectors',

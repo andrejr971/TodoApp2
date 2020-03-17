@@ -28,6 +28,7 @@ class User extends Model {
 
   static associate(models) {
     this.belongsTo(models.File, { foreignKey: 'avatar_id', as: 'perfil' });
+    this.belongsTo(models.Sector, { foreignKey: 'sector_id', as: 'main' });
     this.belongsToMany(models.Sector, {
       foreignKey: 'user_id',
       through: 'user_sectors',

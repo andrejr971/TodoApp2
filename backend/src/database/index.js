@@ -6,10 +6,11 @@ import Sequelize from 'sequelize';
 import User from '../app/models/Users';
 import File from '../app/models/File';
 import Sector from '../app/models/Sector';
+import Todos from '../app/models/Todos';
 
 import databaseConfig from '../config/database';
 
-const models = [User, File, Sector];
+const models = [User, File, Sector, Todos];
 
 class Database {
   constructor() {
